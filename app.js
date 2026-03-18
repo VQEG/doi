@@ -1,63 +1,252 @@
-const bibtexTypes = [
-  "article",
-  "book",
-  "booklet",
-  "conference",
-  "inbook",
-  "incollection",
-  "inproceedings",
-  "manual",
-  "mastersthesis",
-  "misc",
-  "phdthesis",
-  "proceedings",
-  "techreport",
-  "unpublished"
+const fieldDefinitions = [
+  {
+    name: "author",
+    label: "Author",
+    placeholder: "Surname, Name and Second Author, Name"
+  },
+  {
+    name: "editor",
+    label: "Editor",
+    placeholder: "Surname, Name and Second Editor, Name"
+  },
+  {
+    name: "title",
+    label: "Title",
+    placeholder: "Publication title",
+    span: 2
+  },
+  {
+    name: "journal",
+    label: "Journal",
+    placeholder: "Journal title",
+    span: 2
+  },
+  {
+    name: "booktitle",
+    label: "Booktitle / Proceedings",
+    placeholder: "Conference proceedings or book title",
+    span: 2
+  },
+  {
+    name: "publisher",
+    label: "Publisher",
+    placeholder: "Publisher name"
+  },
+  {
+    name: "institution",
+    label: "Institution",
+    placeholder: "Institution name"
+  },
+  {
+    name: "school",
+    label: "School",
+    placeholder: "School or university name"
+  },
+  {
+    name: "organization",
+    label: "Organization",
+    placeholder: "Sponsoring organization"
+  },
+  {
+    name: "year",
+    label: "Year",
+    placeholder: "2026"
+  },
+  {
+    name: "month",
+    label: "Month",
+    placeholder: "March"
+  },
+  {
+    name: "volume",
+    label: "Volume",
+    placeholder: "12"
+  },
+  {
+    name: "number",
+    label: "Number / Report number",
+    placeholder: "3 or TR-2026-001"
+  },
+  {
+    name: "pages",
+    label: "Pages",
+    placeholder: "23--41"
+  },
+  {
+    name: "chapter",
+    label: "Chapter",
+    placeholder: "4"
+  },
+  {
+    name: "series",
+    label: "Series",
+    placeholder: "Lecture Notes in..."
+  },
+  {
+    name: "edition",
+    label: "Edition",
+    placeholder: "2nd"
+  },
+  {
+    name: "address",
+    label: "Address",
+    placeholder: "City, Country"
+  },
+  {
+    name: "howpublished",
+    label: "How published",
+    placeholder: "Online preprint, website, internal memo"
+  },
+  {
+    name: "type",
+    label: "Type",
+    placeholder: "Technical Report, Master's thesis, PhD thesis"
+  },
+  {
+    name: "note",
+    label: "Note",
+    placeholder: "Additional note",
+    span: 2
+  },
+  {
+    name: "doi",
+    label: "DOI",
+    placeholder: "10.0000/example"
+  },
+  {
+    name: "url",
+    label: "Public URL",
+    placeholder: "https://example.org/publication"
+  },
+  {
+    name: "filePath",
+    label: "PDF path",
+    placeholder: "papers/my-document.pdf or /absolute/path/to/document.pdf",
+    span: 2
+  },
+  {
+    name: "abstract",
+    label: "Abstract / Description",
+    placeholder: "Optional descriptive text for the landing page",
+    span: 2,
+    multiline: true,
+    rows: 5
+  }
 ];
 
-const typeLabels = {
-  article: "Article",
-  book: "Book",
-  booklet: "Booklet",
-  conference: "Conference",
-  inbook: "In Book",
-  incollection: "In Collection",
-  inproceedings: "In Proceedings",
-  manual: "Manual",
-  mastersthesis: "Master Thesis",
-  misc: "Misc",
-  phdthesis: "PhD Thesis",
-  proceedings: "Proceedings",
-  techreport: "Tech Report",
-  unpublished: "Unpublished"
+const bibtexTypes = {
+  article: {
+    label: "Article",
+    required: ["author", "title", "journal", "year"],
+    optional: ["volume", "number", "pages", "month", "doi", "url", "filePath", "abstract", "note"]
+  },
+  book: {
+    label: "Book",
+    required: ["title", "publisher", "year"],
+    requiredOneOf: [["author", "editor"]],
+    optional: ["volume", "series", "address", "edition", "month", "doi", "url", "filePath", "abstract", "note"]
+  },
+  booklet: {
+    label: "Booklet",
+    required: ["title"],
+    optional: ["author", "howpublished", "address", "month", "year", "doi", "url", "filePath", "abstract", "note"]
+  },
+  conference: {
+    label: "Conference",
+    required: ["author", "title", "booktitle", "year"],
+    optional: ["editor", "pages", "organization", "publisher", "address", "month", "doi", "url", "filePath", "abstract", "note"]
+  },
+  inbook: {
+    label: "In Book",
+    required: ["title", "publisher", "year"],
+    requiredOneOf: [["author", "editor"], ["chapter", "pages"]],
+    optional: ["volume", "series", "type", "address", "edition", "month", "doi", "url", "filePath", "abstract", "note"]
+  },
+  incollection: {
+    label: "In Collection",
+    required: ["author", "title", "booktitle", "publisher", "year"],
+    optional: ["editor", "pages", "chapter", "volume", "series", "type", "address", "edition", "month", "doi", "url", "filePath", "abstract", "note"]
+  },
+  inproceedings: {
+    label: "In Proceedings",
+    required: ["author", "title", "booktitle", "year"],
+    optional: ["editor", "pages", "organization", "publisher", "address", "month", "doi", "url", "filePath", "abstract", "note"]
+  },
+  manual: {
+    label: "Manual",
+    required: ["title"],
+    optional: ["author", "organization", "address", "edition", "month", "year", "doi", "url", "filePath", "abstract", "note"]
+  },
+  mastersthesis: {
+    label: "Master's Thesis",
+    required: ["author", "title", "school", "year"],
+    optional: ["type", "address", "month", "doi", "url", "filePath", "abstract", "note"]
+  },
+  misc: {
+    label: "Misc",
+    required: [],
+    optional: ["author", "title", "howpublished", "month", "year", "doi", "url", "filePath", "abstract", "note"]
+  },
+  phdthesis: {
+    label: "PhD Thesis",
+    required: ["author", "title", "school", "year"],
+    optional: ["type", "address", "month", "doi", "url", "filePath", "abstract", "note"]
+  },
+  proceedings: {
+    label: "Proceedings",
+    required: ["title", "year"],
+    optional: ["editor", "publisher", "organization", "address", "month", "doi", "url", "filePath", "abstract", "note"]
+  },
+  techreport: {
+    label: "Tech Report",
+    required: ["author", "title", "institution", "year"],
+    optional: ["type", "number", "address", "month", "doi", "url", "filePath", "abstract", "note"]
+  },
+  unpublished: {
+    label: "Unpublished",
+    required: ["author", "title", "note"],
+    optional: ["month", "year", "doi", "url", "filePath", "abstract"]
+  }
 };
 
-const fieldMap = {
-  title: "title",
+const bibtexInputMap = {
   author: "author",
-  year: "year",
-  doi: "doi",
-  url: "url",
-  journal: "containerTitle",
-  booktitle: "containerTitle",
-  series: "containerTitle",
+  editor: "editor",
+  title: "title",
+  journal: "journal",
+  booktitle: "booktitle",
   publisher: "publisher",
   institution: "institution",
-  school: "institution",
-  organization: "institution",
+  school: "school",
+  organization: "organization",
+  year: "year",
+  month: "month",
   volume: "volume",
   number: "number",
-  issue: "number",
   pages: "pages",
-  month: "month",
+  chapter: "chapter",
+  series: "series",
+  edition: "edition",
+  address: "address",
+  howpublished: "howpublished",
+  type: "type",
+  note: "note",
+  doi: "doi",
+  url: "url",
   abstract: "abstract",
   file: "filePath",
   pdf: "filePath"
 };
 
+const globalMandatoryFields = ["doi", "filePath"];
+
+const preview = document.querySelector("#preview");
 const form = document.querySelector("#publicationForm");
 const entryTypeSelect = document.querySelector("#entryType");
-const preview = document.querySelector("#preview");
+const citationKeyInput = document.querySelector("#citationKey");
+const dynamicFields = document.querySelector("#dynamicFields");
+const typeRequirements = document.querySelector("#typeRequirements");
+const showOptionalToggle = document.querySelector("#showOptional");
 const htmlOutput = document.querySelector("#htmlOutput");
 const copyButton = document.querySelector("#copyButton");
 const copyStatus = document.querySelector("#copyStatus");
@@ -66,15 +255,15 @@ const importBibtexButton = document.querySelector("#importBibtexButton");
 const bibtexInput = document.querySelector("#bibtexInput");
 const importStatus = document.querySelector("#importStatus");
 
-function populateEntryTypes() {
-  bibtexTypes.forEach((type) => {
-    const option = document.createElement("option");
-    option.value = type;
-    option.textContent = `${type} - ${typeLabels[type] || type}`;
-    entryTypeSelect.append(option);
-  });
-  entryTypeSelect.value = "article";
-}
+const state = {
+  entryType: "article",
+  citationKey: "",
+  showOptional: false
+};
+
+fieldDefinitions.forEach((field) => {
+  state[field.name] = "";
+});
 
 function escapeHtml(value) {
   return String(value || "")
@@ -95,94 +284,459 @@ function slugify(value) {
     .slice(0, 80) || "publication";
 }
 
-function getFormData() {
-  const formData = new FormData(form);
-  return Object.fromEntries(formData.entries());
+function normalizeWhitespace(value) {
+  return String(value || "")
+    .replace(/\r\n/g, "\n")
+    .replace(/[ \t]+/g, " ")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
 }
 
-function normalizeAuthors(authorField) {
-  if (!authorField) {
+function hasBalancedOuterBraces(value) {
+  if (!value.startsWith("{") || !value.endsWith("}")) {
+    return false;
+  }
+
+  let depth = 0;
+  for (let index = 0; index < value.length; index += 1) {
+    const char = value[index];
+    if (char === "{" && value[index - 1] !== "\\") {
+      depth += 1;
+    } else if (char === "}" && value[index - 1] !== "\\") {
+      depth -= 1;
+      if (depth === 0 && index < value.length - 1) {
+        return false;
+      }
+    }
+  }
+
+  return depth === 0;
+}
+
+function stripOuterBraces(value) {
+  let result = normalizeWhitespace(value);
+  while (hasBalancedOuterBraces(result)) {
+    result = result.slice(1, -1).trim();
+  }
+  return result;
+}
+
+function decodeLatexAccents(value) {
+  const replacements = [
+    [/\{\\'a\}|\\'a/g, "á"],
+    [/\{\\'e\}|\\'e/g, "é"],
+    [/\{\\'i\}|\\'i/g, "í"],
+    [/\{\\'o\}|\\'o/g, "ó"],
+    [/\{\\'u\}|\\'u/g, "ú"],
+    [/\{\\"a\}|\\"a/g, "ä"],
+    [/\{\\"e\}|\\"e/g, "ë"],
+    [/\{\\"i\}|\\"i/g, "ï"],
+    [/\{\\"o\}|\\"o/g, "ö"],
+    [/\{\\"u\}|\\"u/g, "ü"],
+    [/\{\\~n\}|\\~n/g, "ñ"],
+    [/\{\\c c\}|\\c\{c\}|\\cc/g, "ç"],
+    [/\{\\ss\}|\\ss/g, "ß"],
+    [/\{\\o\}|\\o/g, "ø"],
+    [/\{\\aa\}|\\aa/g, "å"],
+    [/\{\\&\}|\\&/g, "&"],
+    [/\{\\%\}|\\%/g, "%"],
+    [/\{\\_\}|\\_/g, "_"],
+    [/\{\\#\}|\\#/g, "#"],
+    [/\{\\\$\}|\\\$/g, "$"],
+    [/~/g, " "]
+  ];
+
+  return replacements.reduce(
+    (result, [pattern, replacement]) => result.replace(pattern, replacement),
+    value
+  );
+}
+
+function sanitizeInputValue(value) {
+  return decodeLatexAccents(stripOuterBraces(value))
+    .replace(/[{}]/g, "")
+    .replace(/\\([&%_#$])/g, "$1")
+    .replace(/\s+--\s+/g, "--")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function sanitizeMultilineInputValue(value) {
+  return decodeLatexAccents(stripOuterBraces(value))
+    .replace(/[{}]/g, "")
+    .replace(/\\([&%_#$])/g, "$1")
+    .replace(/\r\n/g, "\n")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+}
+
+function sanitizeBibtexOutputValue(value) {
+  return normalizeWhitespace(value)
+    .replace(/\\/g, "\\\\")
+    .replace(/([&_#$%])/g, "\\$1")
+    .replace(/{/g, "\\{")
+    .replace(/}/g, "\\}");
+}
+
+function createEmptyStateSnapshot() {
+  const snapshot = {
+    entryType: state.entryType,
+    citationKey: state.citationKey,
+    showOptional: state.showOptional
+  };
+
+  fieldDefinitions.forEach((field) => {
+    snapshot[field.name] = state[field.name];
+  });
+
+  return snapshot;
+}
+
+function getSchema(entryType = state.entryType) {
+  return bibtexTypes[entryType] || bibtexTypes.article;
+}
+
+function getRequiredFields(schema) {
+  return [
+    ...schema.required,
+    ...globalMandatoryFields
+  ].filter((fieldName, index, values) => values.indexOf(fieldName) === index);
+}
+
+function populateEntryTypes() {
+  Object.entries(bibtexTypes).forEach(([type, schema]) => {
+    const option = document.createElement("option");
+    option.value = type;
+    option.textContent = `${type} - ${schema.label}`;
+    entryTypeSelect.append(option);
+  });
+
+  entryTypeSelect.value = state.entryType;
+}
+
+function renderRequirementsText(schema) {
+  const requiredFields = getRequiredFields(schema);
+  const requiredText = requiredFields.length
+    ? `Required fields: ${requiredFields.join(", ")}.`
+    : "This type has no universally required BibTeX fields.";
+  const alternativeText = (schema.requiredOneOf || []).length
+    ? ` One of each group is also required: ${(schema.requiredOneOf || [])
+        .map((group) => group.join(" / "))
+        .join("; ")}.`
+    : "";
+
+  typeRequirements.textContent = `${requiredText}${alternativeText}`;
+}
+
+function buildFieldMarkup(field, schema) {
+  const isRequired = getRequiredFields(schema).includes(field.name);
+  const isAlternativeRequired = (schema.requiredOneOf || []).some((group) =>
+    group.includes(field.name)
+  );
+  const badgeText = isRequired
+    ? "Required"
+    : isAlternativeRequired
+      ? "One of required group"
+      : "Optional";
+  const value = escapeHtml(state[field.name] || "");
+  const fieldClass = `${field.span === 2 ? "field-span-2" : ""} field-card ${
+    isRequired || isAlternativeRequired ? "field-required" : "field-optional"
+  }`.trim();
+  const helpText = isAlternativeRequired
+    ? "At least one field in this group must be filled for the selected BibTeX type."
+    : isRequired
+      ? "This field is required for the selected BibTeX type."
+      : "This field is optional and only appears in the output when enabled.";
+  const control = field.multiline
+    ? `<textarea id="${field.name}" name="${field.name}" rows="${field.rows || 4}" data-field="${field.name}" ${isRequired ? "required" : ""} placeholder="${escapeHtml(field.placeholder || "")}">${value}</textarea>`
+    : `<input id="${field.name}" name="${field.name}" type="text" data-field="${field.name}" ${isRequired ? "required" : ""} value="${value}" placeholder="${escapeHtml(field.placeholder || "")}" />`;
+
+  return `
+    <label class="${fieldClass}">
+      <span class="field-label-row">
+        <span>${escapeHtml(field.label)}</span>
+        <span class="field-badge">${badgeText}</span>
+      </span>
+      ${control}
+      <p class="field-help">${escapeHtml(helpText)}</p>
+    </label>
+  `;
+}
+
+function renderDynamicFields() {
+  const schema = getSchema();
+  const visibleFields = [];
+  const allRelevantFields = new Set([
+    ...getRequiredFields(schema),
+    ...(schema.requiredOneOf || []).flat(),
+    ...(state.showOptional ? schema.optional : [])
+  ]);
+
+  fieldDefinitions.forEach((field) => {
+    if (allRelevantFields.has(field.name)) {
+      visibleFields.push(buildFieldMarkup(field, schema));
+    }
+  });
+
+  dynamicFields.innerHTML = visibleFields.join("");
+  renderRequirementsText(schema);
+
+  dynamicFields.querySelectorAll("[data-field]").forEach((element) => {
+    element.addEventListener("input", (event) => {
+      const { field } = event.target.dataset;
+      state[field] = event.target.value;
+      updateOutputs();
+    });
+  });
+}
+
+function getEnabledFieldNames() {
+  const schema = getSchema();
+  return [
+    ...getRequiredFields(schema),
+    ...(schema.requiredOneOf || []).flat(),
+    ...(state.showOptional ? schema.optional : [])
+  ].filter((fieldName, index, values) => values.indexOf(fieldName) === index);
+}
+
+function getEnabledData() {
+  const data = {
+    entryType: state.entryType,
+    citationKey: sanitizeInputValue(state.citationKey)
+  };
+
+  getEnabledFieldNames().forEach((fieldName) => {
+    const rawValue = state[fieldName];
+    const sanitizedValue = fieldName === "abstract"
+      ? sanitizeMultilineInputValue(rawValue)
+      : sanitizeInputValue(rawValue);
+
+    if (sanitizedValue) {
+      data[fieldName] = sanitizedValue;
+    }
+  });
+
+  return data;
+}
+
+function getMissingRequirements(data) {
+  const schema = getSchema(data.entryType);
+  const missing = [];
+
+  getRequiredFields(schema).forEach((fieldName) => {
+    if (!data[fieldName]) {
+      missing.push(fieldName);
+    }
+  });
+
+  (schema.requiredOneOf || []).forEach((group) => {
+    const hasOne = group.some((fieldName) => data[fieldName]);
+    if (!hasOne) {
+      missing.push(group.join(" / "));
+    }
+  });
+
+  return missing;
+}
+
+function splitAuthors(authorField) {
+  return String(authorField || "")
+    .split(/\s+and\s+/i)
+    .map((author) => author.trim())
+    .filter(Boolean);
+}
+
+function normalizeNameForIeee(author) {
+  if (!author) {
     return "";
   }
 
-  return authorField
-    .split(/\s+and\s+/i)
-    .map((author) => author.trim())
-    .filter(Boolean)
-    .join(", ");
-}
-
-function buildCitationText(data) {
-  const bits = [];
-  const authors = normalizeAuthors(data.author);
-  const title = data.title?.trim();
-  const container = data.containerTitle?.trim();
-  const publisher = data.publisher?.trim();
-  const institution = data.institution?.trim();
-  const monthYear = [data.month?.trim(), data.year?.trim()].filter(Boolean).join(" ");
-  const volumeNumber = [data.volume?.trim(), data.number?.trim()].filter(Boolean);
-
-  if (authors) {
-    bits.push(authors);
+  if (author.includes(",")) {
+    const [family, given] = author.split(",").map((part) => part.trim());
+    const initials = given
+      .split(/\s+/)
+      .filter(Boolean)
+      .map((part) => `${part[0].toUpperCase()}.`)
+      .join(" ");
+    return `${initials} ${family}`.trim();
   }
 
-  if (monthYear) {
-    bits.push(`(${monthYear})`);
-  } else if (data.year?.trim()) {
-    bits.push(`(${data.year.trim()})`);
+  const parts = author.split(/\s+/).filter(Boolean);
+  if (parts.length === 1) {
+    return parts[0];
+  }
+
+  const family = parts.pop();
+  const initials = parts.map((part) => `${part[0].toUpperCase()}.`).join(" ");
+  return `${initials} ${family}`.trim();
+}
+
+function formatAuthorListForDisplay(authorField) {
+  return formatAuthorListForIeee(authorField);
+}
+
+function formatAuthorListForIeee(authorField) {
+  const authors = splitAuthors(authorField).map(normalizeNameForIeee);
+  if (authors.length <= 1) {
+    return authors[0] || "";
+  }
+  if (authors.length === 2) {
+    return `${authors[0]} and ${authors[1]}`;
+  }
+  return `${authors.slice(0, -1).join(", ")}, and ${authors[authors.length - 1]}`;
+}
+
+function buildIeeeCitationText(data) {
+  const segments = [];
+  const authors = formatAuthorListForIeee(data.author || data.editor || "");
+  const title = data.title ? `"${data.title}"` : "";
+
+  if (authors) {
+    segments.push(authors);
   }
 
   if (title) {
-    bits.push(`<em>${escapeHtml(title)}</em>.`);
+    segments.push(title);
   }
 
-  if (container) {
-    bits.push(escapeHtml(container));
+  if (data.journal) {
+    segments.push(data.journal);
+  } else if (data.booktitle) {
+    segments.push(`in ${data.booktitle}`);
   }
 
-  if (volumeNumber.length) {
-    bits.push(escapeHtml(volumeNumber.join(", no. ")));
+  if (data.publisher) {
+    segments.push(data.publisher);
   }
 
-  if (data.pages?.trim()) {
-    bits.push(`pp. ${escapeHtml(data.pages.trim())}`);
+  if (data.institution) {
+    segments.push(data.institution);
   }
 
-  if (publisher) {
-    bits.push(escapeHtml(publisher));
+  if (data.school) {
+    segments.push(data.school);
   }
 
-  if (institution) {
-    bits.push(escapeHtml(institution));
+  if (data.organization) {
+    segments.push(data.organization);
   }
 
-  return bits.join(" ");
+  if (data.volume) {
+    segments.push(`vol. ${data.volume}`);
+  }
+
+  if (data.number) {
+    segments.push(`no. ${data.number}`);
+  }
+
+  if (data.pages) {
+    segments.push(`pp. ${data.pages}`);
+  }
+
+  if (data.month && data.year) {
+    segments.push(`${data.month} ${data.year}`);
+  } else if (data.year) {
+    segments.push(data.year);
+  }
+
+  if (data.doi) {
+    segments.push(`doi: ${data.doi}`);
+  }
+
+  return segments.filter(Boolean).join(", ") + (segments.length ? "." : "");
+}
+
+function buildIeeeCitationMarkup(data) {
+  const citationText = buildIeeeCitationText(data);
+  let citationMarkup = escapeHtml(citationText);
+
+  if (data.journal) {
+    citationMarkup = citationMarkup.replace(
+      escapeHtml(data.journal),
+      `<i>${escapeHtml(data.journal)}</i>`
+    );
+  } else if (data.booktitle) {
+    citationMarkup = citationMarkup.replace(
+      `in ${escapeHtml(data.booktitle)}`,
+      `in <i>${escapeHtml(data.booktitle)}</i>`
+    );
+  }
+
+  return citationMarkup;
+}
+
+function buildMetadataRows(data) {
+  const rows = [
+    ["Type", getSchema(data.entryType).label],
+    ["Title", data.title],
+    ["Author", formatAuthorListForDisplay(data.author)],
+    ["Editor", formatAuthorListForDisplay(data.editor)],
+    ["Journal", data.journal],
+    ["Booktitle", data.booktitle],
+    ["Publisher", data.publisher],
+    ["Institution", data.institution],
+    ["School", data.school],
+    ["Organization", data.organization],
+    ["Year", data.year],
+    ["Month", data.month],
+    ["Volume", data.volume],
+    ["Number", data.number],
+    ["Pages", data.pages],
+    ["Chapter", data.chapter],
+    ["Series", data.series],
+    ["Edition", data.edition],
+    ["Address", data.address],
+    ["How published", data.howpublished],
+    ["Type detail", data.type],
+    ["Note", data.note],
+    ["DOI", data.doi],
+    ["URL", data.url]
+  ];
+
+  return rows.filter(([, value]) => value);
+}
+
+function buildMetadataTableMarkup(data) {
+  const rows = buildMetadataRows(data)
+    .map(([label, value]) => {
+      let renderedValue = escapeHtml(value);
+
+      if (label === "DOI") {
+        const href = value.startsWith("http") ? value : `https://doi.org/${value}`;
+        renderedValue = `<a href="${escapeHtml(href)}" target="_blank" rel="noreferrer noopener">${escapeHtml(value)}</a>`;
+      } else if (label === "URL" || label === "PDF") {
+        renderedValue = `<a href="${escapeHtml(value)}" target="_blank" rel="noreferrer noopener">${escapeHtml(value)}</a>`;
+      }
+
+      return `<tr><th scope="row">${escapeHtml(label)}</th><td>${renderedValue}</td></tr>`;
+    })
+    .join("");
+
+  return rows
+    ? `<table class="metadata-table"><tbody>${rows}</tbody></table>`
+    : "";
 }
 
 function buildResourceLinks(data) {
   const links = [];
-  const pdfPath = data.filePath?.trim();
-  const url = data.url?.trim();
-  const doi = data.doi?.trim();
 
-  if (pdfPath) {
+  if (data.filePath) {
     links.push({
-      href: pdfPath,
+      href: data.filePath,
       label: "Open PDF"
     });
   }
 
-  if (url) {
+  if (data.url) {
     links.push({
-      href: url,
-      label: "Publication URL"
+      href: data.url,
+      label: "Open page"
     });
   }
 
-  if (doi) {
-    const href = doi.startsWith("http") ? doi : `https://doi.org/${doi}`;
+  if (data.doi) {
     links.push({
-      href,
+      href: data.doi.startsWith("http") ? data.doi : `https://doi.org/${data.doi}`,
       label: "DOI"
     });
   }
@@ -190,102 +744,133 @@ function buildResourceLinks(data) {
   return links;
 }
 
+function buildCardSupplementMarkup(data, classNames = {}) {
+  const ieeeCitationText = buildIeeeCitationText(data);
+  const bibtexText = buildBibtexOutput(data);
+  const citationSectionClass = classNames.citationSection || "supplement-box";
+  const bibtexSectionClass = classNames.bibtexSection || "supplement-box";
+  const preClass = classNames.pre || "code-block";
+
+  return `
+    <section class="${citationSectionClass}">
+      <h4>IEEE citation</h4>
+      <p class="ieee-line">${escapeHtml(ieeeCitationText || "IEEE citation pending.")}</p>
+    </section>
+    <section class="${bibtexSectionClass}">
+      <h4>BibTeX</h4>
+      <pre class="${preClass}">${escapeHtml(bibtexText)}</pre>
+    </section>
+  `;
+}
+
 function buildPreviewMarkup(data) {
-  const hasCoreContent = data.title?.trim() || data.author?.trim() || data.doi?.trim();
-  if (!hasCoreContent) {
+  const hasContent = Object.keys(data).some((key) => !["entryType", "citationKey"].includes(key));
+  if (!hasContent) {
     return `<p class="empty-preview">Enter some details to generate the bibliographic record.</p>`;
   }
 
-  const citation = buildCitationText(data);
+  const missing = getMissingRequirements(data);
   const resourceLinks = buildResourceLinks(data)
     .map(
       (link) =>
         `<a class="resource-link" href="${escapeHtml(link.href)}" target="_blank" rel="noreferrer noopener">${escapeHtml(link.label)}</a>`
     )
     .join("");
-
-  const typeText = typeLabels[data.entryType] || data.entryType;
-  const abstractMarkup = data.abstract?.trim()
+  const abstractMarkup = data.abstract
     ? `
       <section class="abstract-box">
         <h4>Abstract</h4>
-        <p>${escapeHtml(data.abstract.trim()).replaceAll("\n", "<br />")}</p>
+        <p>${escapeHtml(data.abstract).replaceAll("\n", "<br />")}</p>
       </section>
     `
     : "";
-
-  const doiLine = data.doi?.trim()
-    ? `<p class="landing-meta"><strong>DOI:</strong> ${escapeHtml(data.doi.trim())}</p>`
-    : "";
-
-  const keyLine = data.citationKey?.trim()
-    ? `<p class="landing-meta"><strong>BibTeX key:</strong> ${escapeHtml(data.citationKey.trim())}</p>`
+  const warning = missing.length
+    ? `<p class="missing-note">Missing BibTeX-required fields for ${escapeHtml(getSchema(data.entryType).label)}: ${escapeHtml(missing.join(", "))}</p>`
     : "";
 
   return `
     <article class="landing-card">
-      <p class="eyebrow">${escapeHtml(typeText)}</p>
-      <h3>${escapeHtml(data.title?.trim() || "Untitled publication")}</h3>
-      <p class="landing-meta">${escapeHtml(normalizeAuthors(data.author) || "Author information pending")}</p>
-      <p class="citation-line">${citation || "Citation details pending."}</p>
-      ${doiLine}
-      ${keyLine}
+      <p class="eyebrow">${escapeHtml(getSchema(data.entryType).label)}</p>
+      <h3>${escapeHtml(data.title || "Untitled publication")}</h3>
+      <p class="landing-meta">${escapeHtml(formatAuthorListForDisplay(data.author) || formatAuthorListForDisplay(data.editor) || "Author information pending")}</p>
+      ${warning}
+      ${buildMetadataTableMarkup(data)}
       ${resourceLinks ? `<div class="resource-row">${resourceLinks}</div>` : ""}
       ${abstractMarkup}
+      ${buildCardSupplementMarkup(data)}
     </article>
   `;
 }
 
 function buildEmbeddedStyles() {
   return `<style>
-.vqeg-doi-card{max-width:760px;margin:0 auto;padding:0;color:#1d2730;font-family:Georgia,"Times New Roman",Times,serif}
+.vqeg-doi-card{max-width:780px;margin:0 auto;padding:0;color:#1d2730;font-family:Georgia,"Times New Roman",Times,serif}
 .vqeg-doi-eyebrow{margin:0 0 8px;font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#1f5d8e}
-.vqeg-doi-card h1{margin:0 0 14px;font-size:34px;line-height:1.2;color:#163e5b}
-.vqeg-doi-meta{margin:0 0 12px;color:#566572}
+.vqeg-doi-card h1{margin:0 0 14px;font-size:34px;line-height:1.18;color:#163e5b}
+.vqeg-doi-meta{margin:0 0 16px;color:#566572;line-height:1.6}
+.vqeg-doi-table{width:100%;margin:18px 0 20px;border-collapse:collapse;border-top:1px solid #c6d6e2}
+.vqeg-doi-table th,.vqeg-doi-table td{padding:11px 0;border-bottom:1px solid #c6d6e2;vertical-align:top}
+.vqeg-doi-table th{width:180px;padding-right:18px;text-align:left;color:#163e5b;font-weight:700}
 .vqeg-doi-citation{margin:0 0 18px;line-height:1.7}
 .vqeg-doi-links{display:flex;flex-wrap:wrap;gap:10px 14px;margin:18px 0}
 .vqeg-doi-links a{display:inline-block;padding:9px 14px;border:1px solid #1f5d8e;color:#1f5d8e;text-decoration:none}
 .vqeg-doi-links a:hover{background:#eaf3f9}
+.vqeg-doi-warning{margin:0 0 16px;padding:12px 14px;border:1px solid #e2c27b;background:#fff9ea;color:#6b5220}
 .vqeg-doi-abstract{margin-top:22px;padding-top:18px;border-top:1px solid #c6d6e2}
 .vqeg-doi-abstract h2{margin:0 0 10px;font-size:18px;color:#163e5b}
+.vqeg-doi-supplement{margin-top:20px;padding-top:16px;border-top:1px solid #c6d6e2}
+.vqeg-doi-supplement h4{margin:0 0 10px;font-size:18px;color:#163e5b}
+.vqeg-doi-code{margin:0;padding:14px;border:1px solid #c6d6e2;background:#f9fbfc;white-space:pre-wrap;word-break:break-word;font:14px/1.45 "Courier New",Courier,monospace}
 </style>`;
 }
 
 function buildStaticBlockHtml(data) {
-  const citation = buildCitationText(data);
-  const typeText = typeLabels[data.entryType] || data.entryType;
-  const authors = normalizeAuthors(data.author) || "Author information pending";
-  const links = buildResourceLinks(data)
+  const resourceLinks = buildResourceLinks(data)
     .map(
       (link) =>
         `<a href="${escapeHtml(link.href)}" target="_blank" rel="noreferrer noopener">${escapeHtml(link.label)}</a>`
     )
     .join("");
-  const abstractMarkup = data.abstract?.trim()
-    ? `<section class="vqeg-doi-abstract"><h2>Abstract</h2><p>${escapeHtml(data.abstract.trim()).replaceAll("\n", "<br />")}</p></section>`
+  const abstractMarkup = data.abstract
+    ? `<section class="vqeg-doi-abstract"><h2>Abstract</h2><p>${escapeHtml(data.abstract).replaceAll("\n", "<br />")}</p></section>`
     : "";
-  const doiLine = data.doi?.trim()
-    ? `<p class="vqeg-doi-meta"><strong>DOI:</strong> ${escapeHtml(data.doi.trim())}</p>`
+  const warning = getMissingRequirements(data).length
+    ? `<p class="vqeg-doi-warning">Missing BibTeX-required fields: ${escapeHtml(getMissingRequirements(data).join(", "))}</p>`
     : "";
-  const keyLine = data.citationKey?.trim()
-    ? `<p class="vqeg-doi-meta"><strong>BibTeX key:</strong> ${escapeHtml(data.citationKey.trim())}</p>`
-    : "";
+  const metadataRows = buildMetadataRows(data)
+    .map(([label, value]) => {
+      let renderedValue = escapeHtml(value);
+
+      if (label === "DOI") {
+        const href = value.startsWith("http") ? value : `https://doi.org/${value}`;
+        renderedValue = `<a href="${escapeHtml(href)}" target="_blank" rel="noreferrer noopener">${escapeHtml(value)}</a>`;
+      } else if (label === "URL" || label === "PDF") {
+        renderedValue = `<a href="${escapeHtml(value)}" target="_blank" rel="noreferrer noopener">${escapeHtml(value)}</a>`;
+      }
+
+      return `<tr><th scope="row">${escapeHtml(label)}</th><td>${renderedValue}</td></tr>`;
+    })
+    .join("");
 
   return `${buildEmbeddedStyles()}
 <article class="vqeg-doi-card">
-  <p class="vqeg-doi-eyebrow">${escapeHtml(typeText)}</p>
-  <h1>${escapeHtml(data.title?.trim() || "Untitled publication")}</h1>
-  <p class="vqeg-doi-meta">${escapeHtml(authors)}</p>
-  <p class="vqeg-doi-citation">${citation || "Citation details pending."}</p>
-  ${doiLine}
-  ${keyLine}
-  ${links ? `<div class="vqeg-doi-links">${links}</div>` : ""}
+  <p class="vqeg-doi-eyebrow">${escapeHtml(getSchema(data.entryType).label)}</p>
+  <h1>${escapeHtml(data.title || "Untitled publication")}</h1>
+  <p class="vqeg-doi-meta">${escapeHtml(formatAuthorListForDisplay(data.author) || formatAuthorListForDisplay(data.editor) || "Author information pending")}</p>
+  ${warning}
+  ${metadataRows ? `<table class="vqeg-doi-table"><tbody>${metadataRows}</tbody></table>` : ""}
+  ${resourceLinks ? `<div class="vqeg-doi-links">${resourceLinks}</div>` : ""}
   ${abstractMarkup}
+  ${buildCardSupplementMarkup(data, {
+    citationSection: "vqeg-doi-supplement",
+    bibtexSection: "vqeg-doi-supplement",
+    pre: "vqeg-doi-code"
+  })}
 </article>`;
 }
 
 function buildFullHtmlDocument(data) {
-  const title = escapeHtml(data.title?.trim() || "VQEG Publication");
+  const title = escapeHtml(data.title || "VQEG Publication");
   return `<!DOCTYPE html>
 <html lang="en">
   <head>
@@ -302,19 +887,28 @@ ${buildStaticBlockHtml(data)
 </html>`;
 }
 
-function updateOutput() {
-  const data = getFormData();
-  preview.innerHTML = buildPreviewMarkup(data);
-  htmlOutput.value = buildStaticBlockHtml(data);
+function formatBibtexField(fieldName, value) {
+  const sanitized = sanitizeBibtexOutputValue(value);
+  const wrappedValue = fieldName === "title" ? `{{${sanitized}}}` : `{${sanitized}}`;
+  return `  ${fieldName} = ${wrappedValue}`;
 }
 
-function setFieldValue(fieldId, value) {
-  const field = document.querySelector(`#${fieldId}`);
-  if (!field || value === undefined || value === null) {
-    return;
-  }
+function buildBibtexOutput(data) {
+  const fields = getEnabledFieldNames()
+    .filter((fieldName) => !["filePath", "abstract"].includes(fieldName))
+    .filter((fieldName) => data[fieldName])
+    .map((fieldName) => formatBibtexField(fieldName, data[fieldName]));
+  const citationKey = data.citationKey || slugify(data.title || "publication");
 
-  field.value = value;
+  return `@${data.entryType || "misc"}{${citationKey},
+${fields.join(",\n")}
+}`;
+}
+
+function updateOutputs() {
+  const data = getEnabledData();
+  preview.innerHTML = buildPreviewMarkup(data);
+  htmlOutput.value = buildStaticBlockHtml(data);
 }
 
 function readBraceValue(input, startIndex) {
@@ -324,12 +918,12 @@ function readBraceValue(input, startIndex) {
 
   while (cursor < input.length) {
     const char = input[cursor];
-    if (char === "{") {
+    if (char === "{" && input[cursor - 1] !== "\\") {
       depth += 1;
       if (depth > 1) {
         value += char;
       }
-    } else if (char === "}") {
+    } else if (char === "}" && input[cursor - 1] !== "\\") {
       depth -= 1;
       if (depth === 0) {
         return { value, nextIndex: cursor + 1 };
@@ -361,7 +955,7 @@ function readQuotedValue(input, startIndex) {
 }
 
 function parseBibtexEntry(input) {
-  const normalizedInput = input.trim();
+  const normalizedInput = normalizeWhitespace(input);
   const entryMatch = normalizedInput.match(/^@([a-zA-Z]+)\s*[{(]\s*([^,]+)\s*,/);
 
   if (!entryMatch) {
@@ -369,7 +963,7 @@ function parseBibtexEntry(input) {
   }
 
   const entryType = entryMatch[1].toLowerCase();
-  const citationKey = entryMatch[2].trim();
+  const citationKey = sanitizeInputValue(entryMatch[2]);
   let cursor = entryMatch[0].length;
   const fields = {};
 
@@ -417,16 +1011,41 @@ function parseBibtexEntry(input) {
   return { entryType, citationKey, fields };
 }
 
-function applyBibtexToForm(parsedEntry) {
-  setFieldValue("entryType", bibtexTypes.includes(parsedEntry.entryType) ? parsedEntry.entryType : "misc");
-  setFieldValue("citationKey", parsedEntry.citationKey);
+function importBibtex() {
+  try {
+    const parsedEntry = parseBibtexEntry(bibtexInput.value);
+    const snapshot = createEmptyStateSnapshot();
 
-  Object.entries(parsedEntry.fields).forEach(([bibtexField, value]) => {
-    const fieldId = fieldMap[bibtexField];
-    if (fieldId) {
-      setFieldValue(fieldId, value);
-    }
-  });
+    snapshot.entryType = bibtexTypes[parsedEntry.entryType] ? parsedEntry.entryType : "misc";
+    snapshot.citationKey = parsedEntry.citationKey;
+
+    fieldDefinitions.forEach((field) => {
+      snapshot[field.name] = "";
+    });
+
+    Object.entries(parsedEntry.fields).forEach(([bibtexField, rawValue]) => {
+      const internalField = bibtexInputMap[bibtexField];
+      if (!internalField) {
+        return;
+      }
+
+      snapshot[internalField] = internalField === "abstract"
+        ? sanitizeMultilineInputValue(rawValue)
+        : sanitizeInputValue(rawValue);
+    });
+
+    snapshot.showOptional = true;
+
+    Object.assign(state, snapshot);
+    entryTypeSelect.value = state.entryType;
+    citationKeyInput.value = state.citationKey;
+    showOptionalToggle.checked = state.showOptional;
+    renderDynamicFields();
+    updateOutputs();
+    importStatus.textContent = "BibTeX entry imported successfully.";
+  } catch (error) {
+    importStatus.textContent = error.message;
+  }
 }
 
 async function copyHtml() {
@@ -441,7 +1060,7 @@ async function copyHtml() {
 }
 
 function downloadHtmlFile() {
-  const data = getFormData();
+  const data = getEnabledData();
   const htmlDocument = buildFullHtmlDocument(data);
   const blob = new Blob([htmlDocument], { type: "text/html;charset=utf-8" });
   const link = document.createElement("a");
@@ -453,21 +1072,28 @@ function downloadHtmlFile() {
   URL.revokeObjectURL(link.href);
 }
 
-function importBibtex() {
-  try {
-    const parsedEntry = parseBibtexEntry(bibtexInput.value);
-    applyBibtexToForm(parsedEntry);
-    importStatus.textContent = "BibTeX entry imported successfully.";
-    updateOutput();
-  } catch (error) {
-    importStatus.textContent = error.message;
-  }
-}
+entryTypeSelect.addEventListener("change", (event) => {
+  state.entryType = event.target.value;
+  renderDynamicFields();
+  updateOutputs();
+});
 
-populateEntryTypes();
-updateOutput();
+citationKeyInput.addEventListener("input", (event) => {
+  state.citationKey = event.target.value;
+  updateOutputs();
+});
 
-form.addEventListener("input", updateOutput);
+showOptionalToggle.addEventListener("change", (event) => {
+  state.showOptional = event.target.checked;
+  renderDynamicFields();
+  updateOutputs();
+});
+
 importBibtexButton.addEventListener("click", importBibtex);
 copyButton.addEventListener("click", copyHtml);
 downloadButton.addEventListener("click", downloadHtmlFile);
+
+populateEntryTypes();
+showOptionalToggle.checked = state.showOptional;
+renderDynamicFields();
+updateOutputs();

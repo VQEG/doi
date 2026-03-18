@@ -22,7 +22,7 @@
         <section class="panel form-panel">
           <div class="panel-header">
             <h2>Publication data</h2>
-            <p>The preview and HTML update automatically.</p>
+            <p>The preview, citation, BibTeX, and HTML update automatically.</p>
           </div>
 
           <div class="bibtex-import">
@@ -30,7 +30,7 @@
             <textarea
               id="bibtexInput"
               rows="8"
-              placeholder="@article{clave2026,&#10;  author = {Doe, Jane and Smith, John},&#10;  title = {Example Title},&#10;  year = {2026},&#10;  journal = {Journal Name},&#10;  doi = {10.1234/example},&#10;  file = {papers/example.pdf}&#10;}"
+              placeholder="@article{key2026,&#10;  author = {Doe, Jane and Smith, John},&#10;  title = {Example Title},&#10;  year = {2026},&#10;  journal = {Journal Name},&#10;  doi = {10.1234/example},&#10;  file = {papers/example.pdf}&#10;}"
             ></textarea>
             <div class="action-row">
               <button id="importBibtexButton" type="button">Import entry</button>
@@ -39,7 +39,7 @@
           </div>
 
           <form id="publicationForm" class="publication-form">
-            <div class="field-grid">
+            <div class="field-grid field-grid-static">
               <label>
                 Publication type
                 <select id="entryType" name="entryType"></select>
@@ -48,70 +48,31 @@
                 BibTeX key
                 <input id="citationKey" name="citationKey" type="text" placeholder="pinson2026vqeg" />
               </label>
-              <label class="field-span-2">
-                Title
-                <input id="title" name="title" type="text" placeholder="Publication title" />
-              </label>
-              <label class="field-span-2">
-                Authors
-                <input id="author" name="author" type="text" placeholder="Surname, Name and Second Author, Name" />
-              </label>
-              <label>
-                Year
-                <input id="year" name="year" type="text" placeholder="2026" />
-              </label>
-              <label>
-                DOI
-                <input id="doi" name="doi" type="text" placeholder="10.0000/ejemplo" />
-              </label>
-              <label class="field-span-2">
-                PDF path
-                <input id="filePath" name="filePath" type="text" placeholder="papers/my-document.pdf or /absolute/path/to/document.pdf" />
-              </label>
-              <label class="field-span-2">
-                Alternative public URL
-                <input id="url" name="url" type="url" placeholder="https://example.org/publication" />
-              </label>
-              <label class="field-span-2">
-                Journal / Booktitle / Event
-                <input id="containerTitle" name="containerTitle" type="text" placeholder="Journal, book, or conference name" />
-              </label>
-              <label>
-                Publisher
-                <input id="publisher" name="publisher" type="text" placeholder="Publisher or organization" />
-              </label>
-              <label>
-                Institution / School
-                <input id="institution" name="institution" type="text" placeholder="Academic institution" />
-              </label>
-              <label>
-                Volume
-                <input id="volume" name="volume" type="text" placeholder="12" />
-              </label>
-              <label>
-                Number
-                <input id="number" name="number" type="text" placeholder="3" />
-              </label>
-              <label>
-                Pages
-                <input id="pages" name="pages" type="text" placeholder="23-41" />
-              </label>
-              <label>
-                Month
-                <input id="month" name="month" type="text" placeholder="March" />
-              </label>
-              <label class="field-span-2">
-                Abstract / Description
-                <textarea id="abstract" name="abstract" rows="5" placeholder="Optional descriptive text for the landing page"></textarea>
-              </label>
             </div>
+
+            <div class="requirements-note">
+              <p id="typeRequirements" class="status"></p>
+            </div>
+
+            <div class="optional-toggle">
+              <label class="switch" for="showOptional">
+                <input id="showOptional" type="checkbox" />
+                <span class="switch-track" aria-hidden="true"></span>
+                <span class="switch-label">Show optional fields</span>
+              </label>
+              <p class="status">
+                Hidden optional fields are excluded from generated metadata.
+              </p>
+            </div>
+
+            <div id="dynamicFields" class="field-grid"></div>
           </form>
         </section>
 
         <section class="panel preview-panel">
           <div class="panel-header">
             <h2>Preview</h2>
-            <p>Bibliographic block inspired by a classic publication page.</p>
+            <p>Bibliographic block with a metadata table inspired by a classic publication page.</p>
           </div>
           <div id="preview" class="preview-surface"></div>
 
