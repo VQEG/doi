@@ -22,3 +22,6 @@ Static web app ready to be published with GitHub Pages.
 - `index.html`: main interface.
 - `styles.css`: lightweight styling with a simple institutional look.
 - `app.js`: form logic, BibTeX import, preview generation, and HTML export.
+
+## Example
+- [VQEG White Paper on QoE Aware Management](vqeg-white-paper-on-quality-of-experience-aware-management-for-collaboration-bet.html)
