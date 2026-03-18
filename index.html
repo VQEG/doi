@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>VQEG DOI Landing Page Builder</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="page-shell">
+      <header class="hero">
+        <p class="eyebrow">VQEG DOI Landing Page Builder</p>
+        <h1>Static DOI landing page builder</h1>
+        <p class="hero-copy">
+          Fill out the form or import a BibTeX entry to generate a simple
+          bibliographic landing page, compatible with GitHub Pages and easy to
+          transplant into the VQEG website.
+        </p>
+      </header>
+
+      <section class="layout">
+        <section class="panel form-panel">
+          <div class="panel-header">
+            <h2>Publication data</h2>
+            <p>The preview and HTML update automatically.</p>
+          </div>
+
+          <div class="bibtex-import">
+            <label for="bibtexInput">Import BibTeX</label>
+            <textarea
+              id="bibtexInput"
+              rows="8"
+              placeholder="@article{clave2026,&#10;  author = {Doe, Jane and Smith, John},&#10;  title = {Example Title},&#10;  year = {2026},&#10;  journal = {Journal Name},&#10;  doi = {10.1234/example},&#10;  file = {papers/example.pdf}&#10;}"
+            ></textarea>
+            <div class="action-row">
+              <button id="importBibtexButton" type="button">Import entry</button>
+              <p id="importStatus" class="status" aria-live="polite"></p>
+            </div>
+          </div>
+
+          <form id="publicationForm" class="publication-form">
+            <div class="field-grid">
+              <label>
+                Publication type
+                <select id="entryType" name="entryType"></select>
+              </label>
+              <label>
+                BibTeX key
+                <input id="citationKey" name="citationKey" type="text" placeholder="pinson2026vqeg" />
+              </label>
+              <label class="field-span-2">
+                Title
+                <input id="title" name="title" type="text" placeholder="Publication title" />
+              </label>
+              <label class="field-span-2">
+                Authors
+                <input id="author" name="author" type="text" placeholder="Surname, Name and Second Author, Name" />
+              </label>
+              <label>
+                Year
+                <input id="year" name="year" type="text" placeholder="2026" />
+              </label>
+              <label>
+                DOI
+                <input id="doi" name="doi" type="text" placeholder="10.0000/ejemplo" />
+              </label>
+              <label class="field-span-2">
+                PDF path
+                <input id="filePath" name="filePath" type="text" placeholder="papers/my-document.pdf or /absolute/path/to/document.pdf" />
+              </label>
+              <label class="field-span-2">
+                Alternative public URL
+                <input id="url" name="url" type="url" placeholder="https://example.org/publication" />
+              </label>
+              <label class="field-span-2">
+                Journal / Booktitle / Event
+                <input id="containerTitle" name="containerTitle" type="text" placeholder="Journal, book, or conference name" />
+              </label>
+              <label>
+                Publisher
+                <input id="publisher" name="publisher" type="text" placeholder="Publisher or organization" />
+              </label>
+              <label>
+                Institution / School
+                <input id="institution" name="institution" type="text" placeholder="Academic institution" />
+              </label>
+              <label>
+                Volume
+                <input id="volume" name="volume" type="text" placeholder="12" />
+              </label>
+              <label>
+                Number
+                <input id="number" name="number" type="text" placeholder="3" />
+              </label>
+              <label>
+                Pages
+                <input id="pages" name="pages" type="text" placeholder="23-41" />
+              </label>
+              <label>
+                Month
+                <input id="month" name="month" type="text" placeholder="March" />
+              </label>
+              <label class="field-span-2">
+                Abstract / Description
+                <textarea id="abstract" name="abstract" rows="5" placeholder="Optional descriptive text for the landing page"></textarea>
+              </label>
+            </div>
+          </form>
+        </section>
+
+        <section class="panel preview-panel">
+          <div class="panel-header">
+            <h2>Preview</h2>
+            <p>Bibliographic block inspired by a classic publication page.</p>
+          </div>
+          <div id="preview" class="preview-surface"></div>
+
+          <div class="panel-header export-header">
+            <h2>Generated HTML</h2>
+            <p>Copy the block or download an HTML file ready to publish.</p>
+          </div>
+
+          <div class="action-row export-actions">
+            <button id="copyButton" type="button">Copy</button>
+            <button id="downloadButton" type="button">Download .html</button>
+            <p id="copyStatus" class="status" aria-live="polite"></p>
+          </div>
+
+          <textarea
+            id="htmlOutput"
+            class="html-output"
+            rows="18"
+            readonly
+            spellcheck="false"
+          ></textarea>
+        </section>
+      </section>
+    </main>
+
+    <script src="./app.js"></script>
+  </body>
+</html>
