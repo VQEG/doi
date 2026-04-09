@@ -111,7 +111,7 @@ const fieldDefinitions = [
   {
     name: "doi",
     label: "DOI",
-    placeholder: "10.0000/example"
+    placeholder: "10.66537/ABCD1234"
   },
   {
     name: "url",
@@ -239,6 +239,8 @@ const bibtexInputMap = {
 };
 
 const globalMandatoryFields = ["doi", "filePath"];
+const doiPrefix = "10.66537/";
+const doiPattern = /^10\.66537\/[A-Z]{4}\d{4}$/;
 
 const preview = document.querySelector("#preview");
 const form = document.querySelector("#publicationForm");
@@ -361,6 +363,37 @@ function sanitizeInputValue(value) {
     .trim();
 }
 
+function normalizeDoiValue(value) {
+  const sanitized = sanitizeInputValue(value).replace(/^https?:\/\/doi\.org\//i, "");
+  if (!sanitized) {
+    return "";
+  }
+
+  const uppercased = sanitized.toUpperCase();
+  if (doiPattern.test(uppercased)) {
+    return uppercased;
+  }
+
+  const suffixOnly = uppercased.replace(/^10\.66537\/?/i, "");
+  if (/^[A-Z]{4}\d{4}$/.test(suffixOnly)) {
+    return `${doiPrefix}${suffixOnly}`;
+  }
+
+  return uppercased;
+}
+
+function isValidDoi(value) {
+  return doiPattern.test(normalizeDoiValue(value));
+}
+
+function generateRandomDoi() {
+  const letters = Array.from({ length: 4 }, () =>
+    String.fromCharCode(65 + Math.floor(Math.random() * 26))
+  ).join("");
+  const digits = Array.from({ length: 4 }, () => Math.floor(Math.random() * 10)).join("");
+  return `${doiPrefix}${letters}${digits}`;
+}
+
 function sanitizeMultilineInputValue(value) {
   return decodeLatexAccents(stripOuterBraces(value))
     .replace(/[{}]/g, "")
@@ -450,15 +483,21 @@ function buildFieldMarkup(field, schema) {
   const control = field.multiline
     ? `<textarea id="${field.name}" name="${field.name}" rows="${field.rows || 4}" data-field="${field.name}" ${isRequired ? "required" : ""} placeholder="${escapeHtml(field.placeholder || "")}">${value}</textarea>`
     : `<input id="${field.name}" name="${field.name}" type="text" data-field="${field.name}" ${isRequired ? "required" : ""} value="${value}" placeholder="${escapeHtml(field.placeholder || "")}" />`;
+  const finalHelpText = field.name === "doi"
+    ? `${helpText} Format: ${doiPrefix}ABCD1234.`
+    : helpText;
+  const labelActions = field.name === "doi"
+    ? `<span class="field-label-actions"><span class="field-badge">${badgeText}</span><button type="button" class="field-generate-button" data-generate-doi="true">Generate</button></span>`
+    : `<span class="field-badge">${badgeText}</span>`;
 
   return `
     <label class="${fieldClass}">
       <span class="field-label-row">
         <span>${escapeHtml(field.label)}</span>
-        <span class="field-badge">${badgeText}</span>
+        ${labelActions}
       </span>
       ${control}
-      <p class="field-help">${escapeHtml(helpText)}</p>
+      <p class="field-help">${escapeHtml(finalHelpText)}</p>
     </label>
   `;
 }
@@ -484,7 +523,20 @@ function renderDynamicFields() {
   dynamicFields.querySelectorAll("[data-field]").forEach((element) => {
     element.addEventListener("input", (event) => {
       const { field } = event.target.dataset;
-      state[field] = event.target.value;
+      state[field] = field === "doi"
+        ? normalizeDoiValue(event.target.value)
+        : event.target.value;
+      if (field === "doi") {
+        event.target.value = state[field];
+      }
+      updateOutputs();
+    });
+  });
+
+  dynamicFields.querySelectorAll("[data-generate-doi]").forEach((button) => {
+    button.addEventListener("click", () => {
+      state.doi = generateRandomDoi();
+      renderDynamicFields();
       updateOutputs();
     });
   });
@@ -509,6 +561,8 @@ function getEnabledData() {
     const rawValue = state[fieldName];
     const sanitizedValue = fieldName === "abstract"
       ? sanitizeMultilineInputValue(rawValue)
+      : fieldName === "doi"
+        ? normalizeDoiValue(rawValue)
       : sanitizeInputValue(rawValue);
 
     if (sanitizedValue) {
@@ -526,6 +580,8 @@ function getMissingRequirements(data) {
   getRequiredFields(schema).forEach((fieldName) => {
     if (!data[fieldName]) {
       missing.push(fieldName);
+    } else if (fieldName === "doi" && !isValidDoi(data[fieldName])) {
+      missing.push(`doi (must match ${doiPrefix}ABCD1234)`);
     }
   });
 
@@ -1031,6 +1087,8 @@ function importBibtex() {
 
       snapshot[internalField] = internalField === "abstract"
         ? sanitizeMultilineInputValue(rawValue)
+        : internalField === "doi"
+          ? normalizeDoiValue(rawValue)
         : sanitizeInputValue(rawValue);
     });
 
