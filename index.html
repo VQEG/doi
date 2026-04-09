@@ -22,7 +22,7 @@
         <section class="panel form-panel">
           <div class="panel-header">
             <h2>Publication data</h2>
-            <p>The preview, citation, BibTeX, and HTML update automatically.</p>
+            <p>The preview, citation, BibTeX, HTML, and Crossref XML update automatically.</p>
           </div>
 
           <div class="bibtex-import">
@@ -67,6 +67,21 @@
 
             <div id="dynamicFields" class="field-grid"></div>
           </form>
+
+          <div class="panel-header export-header">
+            <h2>Crossref deposit</h2>
+            <p>Crossref-specific metadata for deposit schema 5.4.0.</p>
+          </div>
+
+          <div class="requirements-note">
+            <p id="crossrefMappingStatus" class="status"></p>
+          </div>
+
+          <div class="requirements-note">
+            <p id="crossrefRequirements" class="status"></p>
+          </div>
+
+          <div id="crossrefFields" class="field-grid"></div>
         </section>
 
         <section class="panel preview-panel">
@@ -91,6 +106,27 @@
             id="htmlOutput"
             class="html-output"
             rows="18"
+            readonly
+            spellcheck="false"
+          ></textarea>
+
+          <div class="panel-header export-header">
+            <h2>Crossref XML</h2>
+            <p>Full deposit XML for Crossref schema 5.4.0.</p>
+          </div>
+
+          <div class="action-row export-actions">
+            <button id="copyXmlButton" type="button">Copy XML</button>
+            <button id="downloadXmlButton" type="button">Download .xml</button>
+            <p id="xmlCopyStatus" class="status" aria-live="polite"></p>
+          </div>
+
+          <div id="xmlValidationPanel" class="validation-panel"></div>
+
+          <textarea
+            id="xmlOutput"
+            class="html-output"
+            rows="24"
             readonly
             spellcheck="false"
           ></textarea>
