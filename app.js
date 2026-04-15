@@ -464,8 +464,7 @@ function slugify(value) {
   return String(value || "publication")
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/[^A-Za-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "")
     .slice(0, 80) || "publication";
 }
@@ -2014,7 +2013,7 @@ downloadButton.addEventListener("click", () => {
   const publicationData = getPublicationData();
   downloadFile(
     buildFullHtmlDocument(publicationData),
-    `${slugify(publicationData.title || publicationData.citationKey || "vqeg-publication")}.html`,
+    `${slugify(publicationData.doi)}_index.html`,
     "text/html;charset=utf-8"
   );
 });
@@ -2027,7 +2026,7 @@ downloadXmlButton.addEventListener("click", () => {
   const combinedData = getCombinedData();
   downloadFile(
     buildCrossrefXml(combinedData),
-    `${slugify(combinedData.title || combinedData.citationKey || "crossref-deposit")}.xml`,
+    `${slugify(combinedData.doi)}.xml`,
     "application/xml;charset=utf-8"
   );
 });
