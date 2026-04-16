@@ -1233,9 +1233,86 @@ ${fields.join(",\n")}
 }`;
 }
 
+function getRisType(entryType) {
+  const risTypes = {
+    article: "JOUR",
+    book: "BOOK",
+    inbook: "CHAP",
+    incollection: "CHAP",
+    conference: "CONF",
+    inproceedings: "CONF",
+    proceedings: "CONF",
+    techreport: "RPRT",
+    mastersthesis: "THES",
+    phdthesis: "THES",
+    unpublished: "UNPB"
+  };
+  return risTypes[entryType] || "GEN";
+}
+
+function normalizeRisValue(value) {
+  return sanitizeMultilineInputValue(value).replace(/\s*\n+\s*/g, " ");
+}
+
+function formatRisLine(tagName, value) {
+  const normalized = normalizeRisValue(value);
+  return normalized ? `${tagName}  - ${normalized}` : "";
+}
+
+function buildRisOutput(data) {
+  const lines = [formatRisLine("TY", getRisType(data.entryType))];
+  splitAuthors(data.author).forEach((author) => {
+    lines.push(formatRisLine("AU", author));
+  });
+  splitAuthors(data.editor).forEach((editor) => {
+    lines.push(formatRisLine("ED", editor));
+  });
+
+  lines.push(formatRisLine("TI", data.title));
+  if (data.journal) {
+    lines.push(formatRisLine("JO", data.journal));
+  }
+  if (data.booktitle) {
+    lines.push(formatRisLine("T2", data.booktitle));
+  }
+  lines.push(formatRisLine("PY", data.year));
+
+  const month = monthToCrossrefNumber(data.month);
+  if (data.year && month) {
+    lines.push(formatRisLine("DA", `${data.year}/${month}`));
+  }
+
+  lines.push(formatRisLine("VL", data.volume));
+  lines.push(formatRisLine("IS", data.number));
+
+  const pageRange = parsePageRange(data.pages);
+  if (pageRange) {
+    lines.push(formatRisLine("SP", pageRange.first));
+    lines.push(formatRisLine("EP", pageRange.last));
+  }
+
+  lines.push(formatRisLine("PB", data.publisher || data.institution || data.organization || data.school));
+  lines.push(formatRisLine("CY", data.address));
+  lines.push(formatRisLine("DO", data.doi));
+  lines.push(formatRisLine("UR", data.url || (data.doi ? `https://doi.org/${data.doi}` : "")));
+  lines.push(formatRisLine("AB", data.abstract));
+  lines.push(formatRisLine("N1", data.note || data.type || data.howpublished));
+  lines.push("ER  -");
+
+  return lines.filter(Boolean).join("\n");
+}
+
+function buildRisDownloadLinkMarkup(data, linkClass) {
+  const fileBase = slugify(data.doi || data.citationKey || data.title || "publication");
+  const href = `data:text/plain;charset=utf-8,${encodeURIComponent(buildRisOutput(data))}`;
+  return `<a class="${linkClass}" href="${escapeHtml(href)}" download="${escapeHtml(fileBase)}.ris">Download RIS for Zotero, Mendeley, and EndNote</a>`;
+}
+
 function buildCardSupplementMarkup(data, classNames = {}) {
   const citationSectionClass = classNames.citationSection || "supplement-box";
   const bibtexSectionClass = classNames.bibtexSection || "supplement-box";
+  const risSectionClass = classNames.risSection || "supplement-box";
+  const risLinkClass = classNames.risLink || "resource-link";
   const preClass = classNames.pre || "code-block";
 
   return `
@@ -1246,6 +1323,10 @@ function buildCardSupplementMarkup(data, classNames = {}) {
     <section class="${bibtexSectionClass}">
       <h4>BibTeX</h4>
       <pre class="${preClass}">${escapeHtml(buildBibtexOutput(data))}</pre>
+    </section>
+    <section class="${risSectionClass}">
+      <h4>RIS export</h4>
+      <p>${buildRisDownloadLinkMarkup(data, risLinkClass)}</p>
     </section>
   `;
 }
@@ -1298,6 +1379,9 @@ function buildEmbeddedStyles() {
 .vqeg-doi-abstract h2{margin:0 0 10px;font-size:18px;color:#163e5b}
 .vqeg-doi-supplement{margin-top:20px;padding-top:16px;border-top:1px solid #c6d6e2}
 .vqeg-doi-supplement h4{margin:0 0 10px;font-size:18px;color:#163e5b}
+.vqeg-doi-supplement p{margin:0 0 18px;line-height:1.7}
+.vqeg-doi-citation-link{display:inline-block;padding:9px 14px;border:1px solid #1f5d8e;color:#1f5d8e;text-decoration:none}
+.vqeg-doi-citation-link:hover{background:#eaf3f9}
 .vqeg-doi-code{margin:0;padding:14px;border:1px solid #c6d6e2;background:#f9fbfc;white-space:pre-wrap;word-break:break-word;font:14px/1.45 "Courier New",Courier,monospace}
 </style>`;
 }
@@ -1338,6 +1422,8 @@ function buildStaticBlockHtml(data) {
   ${buildCardSupplementMarkup(data, {
     citationSection: "vqeg-doi-supplement",
     bibtexSection: "vqeg-doi-supplement",
+    risSection: "vqeg-doi-supplement",
+    risLink: "vqeg-doi-citation-link",
     pre: "vqeg-doi-code"
   })}
 </article>`;
