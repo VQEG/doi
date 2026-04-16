@@ -1283,7 +1283,14 @@ function buildRisOutput(data) {
   }
 
   lines.push(formatRisLine("VL", data.volume));
-  lines.push(formatRisLine("IS", data.number));
+  if (data.entryType === "techreport") {
+    lines.push(formatRisLine("SN", data.number));
+    lines.push(formatRisLine("M3", data.type));
+  } else if (data.entryType === "article") {
+    lines.push(formatRisLine("IS", data.number));
+  } else {
+    lines.push(formatRisLine("N1", data.number ? `Number: ${data.number}` : ""));
+  }
 
   const pageRange = parsePageRange(data.pages);
   if (pageRange) {
@@ -1296,7 +1303,11 @@ function buildRisOutput(data) {
   lines.push(formatRisLine("DO", data.doi));
   lines.push(formatRisLine("UR", data.url || (data.doi ? `https://doi.org/${data.doi}` : "")));
   lines.push(formatRisLine("AB", data.abstract));
-  lines.push(formatRisLine("N1", data.note || data.type || data.howpublished));
+  [data.note, data.entryType === "techreport" ? data.howpublished : data.type || data.howpublished]
+    .filter(Boolean)
+    .forEach((note) => {
+      lines.push(formatRisLine("N1", note));
+    });
   lines.push("ER  -");
 
   return lines.filter(Boolean).join("\n");
