@@ -750,6 +750,98 @@ function parsePageRange(value) {
   };
 }
 
+function formatCitationPublicationDate(data) {
+  if (!data.year) {
+    return "";
+  }
+
+  const month = monthToCrossrefNumber(data.month);
+  return month ? `${data.year}/${month}` : data.year;
+}
+
+function resolveCitationPdfUrl(data) {
+  const filePath = normalizeUrlValue(data.filePath);
+  const landingUrl = normalizeUrlValue(data.crossrefResourceUrl);
+
+  if (!filePath || !landingUrl) {
+    return "";
+  }
+
+  try {
+    const landing = new URL(landingUrl);
+    const landingDirectory = landing.pathname.endsWith("/")
+      ? landing.pathname
+      : landing.pathname.slice(0, landing.pathname.lastIndexOf("/") + 1);
+    const resolved = new URL(filePath, landing);
+
+    if (resolved.origin !== landing.origin || !resolved.pathname.startsWith(landingDirectory)) {
+      return "";
+    }
+
+    return resolved.href;
+  } catch (error) {
+    return "";
+  }
+}
+
+function buildMetaTag(name, content) {
+  return content ? `    <meta name="${escapeHtml(name)}" content="${escapeHtml(content)}" />` : "";
+}
+
+function buildScholarMetaTags(data) {
+  const tags = [
+    buildMetaTag("citation_title", data.title),
+    ...splitAuthors(data.author).map((author) => buildMetaTag("citation_author", author)),
+    buildMetaTag("citation_publication_date", formatCitationPublicationDate(data)),
+    buildMetaTag("citation_doi", data.doi),
+    buildMetaTag("citation_language", data.crossrefLanguage || "en")
+  ];
+
+  if (data.journal) {
+    tags.push(
+      buildMetaTag("citation_journal_title", data.journal),
+      buildMetaTag("citation_issn", data.journalIssn)
+    );
+  }
+
+  if (data.booktitle) {
+    tags.push(
+      buildMetaTag("citation_conference_title", data.booktitle),
+      buildMetaTag("citation_isbn", data.isbn)
+    );
+  }
+
+  if (data.journal || data.booktitle) {
+    tags.push(
+      buildMetaTag("citation_volume", data.volume),
+      buildMetaTag("citation_issue", data.number)
+    );
+  }
+
+  const pageRange = parsePageRange(data.pages);
+  if (pageRange) {
+    tags.push(
+      buildMetaTag("citation_firstpage", pageRange.first),
+      buildMetaTag("citation_lastpage", pageRange.last)
+    );
+  }
+
+  if (["mastersthesis", "phdthesis"].includes(data.entryType)) {
+    tags.push(buildMetaTag("citation_dissertation_institution", data.school || data.institution));
+  }
+
+  if (["techreport", "manual", "misc", "booklet", "unpublished"].includes(data.entryType)) {
+    tags.push(
+      buildMetaTag("citation_technical_report_institution", data.institution || data.publisher || data.organization),
+      buildMetaTag("citation_technical_report_number", data.number)
+    );
+  }
+
+  tags.push(buildMetaTag("citation_pdf_url", resolveCitationPdfUrl(data)));
+
+  return tags.filter(Boolean).join("\n");
+}
+
 function getEnabledPublicationFieldNames() {
   const schema = getSchema();
   return [
@@ -1364,10 +1456,11 @@ function buildPreviewMarkup(data) {
       <p class="eyebrow">${escapeHtml(getSchema(data.entryType).label)}</p>
       <h3>${escapeHtml(data.title || "Untitled publication")}</h3>
       <p class="landing-meta">${escapeHtml(formatAuthorListForDisplay(data.author) || formatAuthorListForDisplay(data.editor) || "Author information pending")}</p>
+      <p class="ieee-line">${escapeHtml(buildIeeeCitationText(data) || "Citation pending.")}</p>
       ${warning}
+      ${abstractMarkup}
       ${buildMetadataTableMarkup(data)}
       ${resourceLinks ? `<div class="resource-row">${resourceLinks}</div>` : ""}
-      ${abstractMarkup}
       ${buildCardSupplementMarkup(data)}
     </article>
   `;
@@ -1426,10 +1519,11 @@ function buildStaticBlockHtml(data) {
   <p class="vqeg-doi-eyebrow">${escapeHtml(getSchema(data.entryType).label)}</p>
   <h1>${escapeHtml(data.title || "Untitled publication")}</h1>
   <p class="vqeg-doi-meta">${escapeHtml(formatAuthorListForDisplay(data.author) || formatAuthorListForDisplay(data.editor) || "Author information pending")}</p>
+  <p class="ieee-line">${escapeHtml(buildIeeeCitationText(data) || "Citation pending.")}</p>
   ${warning}
+  ${abstractMarkup}
   <table class="vqeg-doi-table"><tbody>${metadataRows}</tbody></table>
   ${resourceLinks ? `<div class="vqeg-doi-links">${resourceLinks}</div>` : ""}
-  ${abstractMarkup}
   ${buildCardSupplementMarkup(data, {
     citationSection: "vqeg-doi-supplement",
     bibtexSection: "vqeg-doi-supplement",
@@ -1442,11 +1536,19 @@ function buildStaticBlockHtml(data) {
 
 function buildFullHtmlDocument(data) {
   const title = escapeHtml(data.title || "VQEG Publication");
+  const canonicalUrl = normalizeUrlValue(data.crossrefResourceUrl);
+  const metaDescription = data.abstract
+    ? escapeHtml(data.abstract.replace(/\s+/g, " ").slice(0, 300))
+    : title;
   return `<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="index,follow" />
+    <meta name="description" content="${metaDescription}" />
+${buildScholarMetaTags(data)}
+${canonicalUrl ? `    <link rel="canonical" href="${escapeHtml(canonicalUrl)}" />` : ""}
     <title>${title}</title>
   </head>
   <body>
@@ -1930,7 +2032,7 @@ function updateOutputs() {
   const crossrefIssues = getCrossrefIssues(combinedData);
 
   preview.innerHTML = buildPreviewMarkup(publicationData);
-  htmlOutput.value = buildStaticBlockHtml(publicationData);
+  htmlOutput.value = buildFullHtmlDocument(combinedData);
   xmlOutput.value = crossrefXml;
   runCrossrefValidation(combinedData, crossrefXml, crossrefIssues);
 }
@@ -2107,7 +2209,7 @@ copyButton.addEventListener("click", () => {
 });
 
 downloadButton.addEventListener("click", () => {
-  const publicationData = getPublicationData();
+  const publicationData = getCombinedData();
   downloadFile(
     buildFullHtmlDocument(publicationData),
     `${slugify(publicationData.doi)}_index.html`,
